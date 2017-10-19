@@ -2,6 +2,7 @@ package com.mstztrk.j10_7googlemapgeolocation;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -10,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -17,6 +19,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -55,22 +58,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (isaretci != null)
                     isaretci.remove();
                 isaretci = mMap.addMarker(new MarkerOptions().position(konum).title("Şu anda buradasınız"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(konum, 15));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(konum, 16.5f));
             }
 
             @Override
             public void onStatusChanged(String s, int i, Bundle bundle) {
-
+                Log.i("onStatusChanged", s + " " + i);
             }
 
             @Override
             public void onProviderEnabled(String s) {
-
+                Log.i("onProviderEnabled", s);
             }
 
             @Override
             public void onProviderDisabled(String s) {
-
+                Log.i("onProviderDisabled", s);
             }
         };
     }
@@ -97,8 +100,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setTrafficEnabled(true);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        }
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, R.raw.stil1));
+
+            if (!success) {
+                Toast.makeText(this, "Style parsing failed", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Resources.NotFoundException e) {
+            Toast.makeText(this, "Can't find style. Error: " + e, Toast.LENGTH_SHORT).show();
         }
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
